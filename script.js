@@ -1,4 +1,4 @@
-let checkerBox = 64;
+let checkerBoxCount = 64;
 
 let boardEl = document.getElementById("board");
 const msgEl = document.getElementById('message');
@@ -52,8 +52,35 @@ class Cell {
     render() {
       this.domElement.style.backgroundColor = Cell.renderLookup[this.value];
     }
-  }
+}
+
+class ImageCell extends Cell {
+    // additional parameters must always be defined 
+    // after the parameters of the superclass
   
+    constructor(domElement, value) {
+      // always initialize the superclass first
+      super(domElement, value);
+      
+    }
+  
+    static renderLookup = {
+      '1': 'https://i.imgur.com/UlaDUh1.png',
+      '2': 'https://i.imgur.com/1DfePxg.png',
+      'null': 'black'
+    }
+  
+    // Override the inherited render method
+    render() {
+      if (this.value) {
+  
+        this.domElement.style.backgroundImage = `url(${ImageCell.renderLookup[this.value]})`;
+      } else {
+        this.domElement.style.backgroundImage = '';
+      }
+    }
+}
+
 function initialize() {
   initializeBoard();
 }
@@ -61,7 +88,7 @@ function initialize() {
 function initializeBoard() {
   let row = 0;
 
-  for (let i = 0; i < 64; i++) {
+  for (let i = 0; i < checkerBoxCount; i++) {
 
     if (i % 8 === 0) {
       row = row + 1;
