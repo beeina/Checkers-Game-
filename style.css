@@ -1,0 +1,71 @@
+/* style.css */
+
+* {
+    box-sizing: border-box;
+  }
+  
+  body {
+    /* viewport units: vh (viewport height), vw, vmin (smallest between vh & vw) */
+    height: 100vh;
+    margin: 0;
+    font-family: 'Open Sans', sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  header {
+    font-size: 4vmin;
+    color:
+      darkgrey;
+    letter-spacing: 1vmin;
+  }
+  
+  h1 {
+    color:
+      grey;
+    font-size: 3vmin;
+    margin-bottom: 5.5vmin;
+  }
+  
+  #board {
+    display: grid;
+    grid-template-columns: repeat(8, 10vmin);
+    grid-template-rows: repeat(8, 10vmin);
+    /* gap: 1vmin; */
+    /* margin-top: -4vmin; */
+  }
+  
+  #board>div {
+    /* border-radius: 100%; */
+    border: 0.1vmin solid #0d0d0d;
+    /* margin: 3vmin; */
+    /* border: 1vmin solid white; */
+    /* border-radius: 50%; */
+    background-color: #0a0a0a;
+    background-size: contain;
+    /* animation: rotating 0s linear infinite; */
+  }
+  
+  #board>span {
+    /* border-radius: 100%; */
+    border: 0.1vmin solid grey;
+  }
+  
+  button {
+    margin-top: 4vmin;
+    padding: 2vmin;
+    font-size: 2vmin;
+    border-radius: 4vmin;
+    border: 0.1vmin solid grey;
+    color:
+      grey;
+  }
+  
+  button:hover {
+    color:
+      white;
+    background-color:
+      darkgrey;
+  }
