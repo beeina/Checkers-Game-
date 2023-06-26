@@ -5,13 +5,15 @@ let boardEl = document.getElementById("board");
 const msgEl = document.getElementById('message');
 const resetButton = document.querySelector('button');
 
-resetButton.addEventListener("click", initialize);
-
 class Cell {
     constructor(domElement, idx) {
         this.domElement = domElement;
         this.index = idx;
+        this.selected = 0;
+        this.openSpaceIndexes = null;
+        this.jumpSpaceIndexes = null;
         this.setRow(idx);
+        this.deselect();
     }
 
     setRow(idx) {
@@ -54,7 +56,6 @@ class Cell {
         this.domElement.style.backgroundColor = Cell.renderLookup[this.value];
     }
 
-
     deselect() {
         this.selected = 0;
         this.domElement.classList.remove("selected-border");
@@ -66,7 +67,6 @@ class Cell {
     }
 }
 
-
 class ImageCell extends Cell {
     // additional parameters must always be defined 
     // after the parameters of the superclass
@@ -74,8 +74,11 @@ class ImageCell extends Cell {
     constructor(domElement, value) {
         // always initialize the superclass first
         super(domElement, value);
-
+        // set this subclass properties here:
+        // this.domElement.style.animationDuration = `${secondsPerRotation}s`
     }
+
+
 
     static renderLookup = {
         '1': 'https://i.imgur.com/UlaDUh1.png',
@@ -100,6 +103,7 @@ class CheckerGame {
         // add properties to the new obj
         this.boardElement = boardElement;
         this.messageElement = messageElement;
+        this.selectedPlayer;
         // Will want to use the map method later
         // create an array instead of NodeList
         this.blackCellEls = [...boardElement.querySelectorAll("div")];
@@ -108,16 +112,8 @@ class CheckerGame {
             // obtain index of square
             const idx = this.blackCellEls.indexOf(evt.target);
             // Logical guards
-            if (
-                // didn't click <div> in grid
-                idx === -1) return;
+            this.cellClicked(idx);
 
-            if (this.blackCells[idx].value !== null && this.turn === this.blackCells[idx].value) {
-                this.deselect();
-                this.blackCells[idx].select();
-            }
-
-            this.render();
         })
         // Arrow function is necessary to ensure 'this'
         // is set to the game object
@@ -129,17 +125,20 @@ class CheckerGame {
         // the actual instance (game obj)
         this.turn = 1;
         this.winner = null;
+        // we'll come back to this later
+        this.blackCells = this.blackCellEls.map((el, idx) =>
+            new ImageCell(el, idx));
         // render the game
         this.render();
+    }
+
+    getWinner() {
     }
 
     render() {
         // square objs are responsible for rendering themselves
         this.blackCells.forEach(cell => cell.render());
         this.messageElement.innerHTML = `Player ${this.turn === 1 ? 1 : 2}'s Turn`
-    }
-
-    getWinner() {
 
     }
 
@@ -150,11 +149,60 @@ class CheckerGame {
     move() {
     }
 
-    findOpenSpaces() {
+    cellClicked(idx) {
+        if (
+            // didn't click <div> in grid
+            idx === -1) return;
 
+        if (this.blackCells[idx].value !== null &&
+            this.turn === this.blackCells[idx].value) {
+            this.deselect();
+            this.blackCells[idx].select();
+            this.findOpenSpaces(idx);
+            this.findJumpSpaces(idx);
+            this.selectedPlayer = this.blackCells[idx];
+
+        } else if (this.blackCells[idx].value === null &&
+            this.selectedPlayer &&
+            this.selectedPlayer.openSpaceIndexes.includes(idx)) {
+            this.blackCells[this.selectedPlayer.index].value = null;
+            this.blackCells[idx].value = this.turn;
+            this.selectedPlayer = null;
+            this.turn = this.turn === 1 ? 2 : 1;
+            this.deselect();
+        }
+
+        this.render();
     }
 
-    findJumpSpaces() {
+    findOpenSpaces(idx) {
+        let indexes = [];
+        if (this.blackCells[idx + 4].value === null) {
+            indexes.push(idx + 4);
+        }
+        if (this.blackCells[idx + 5].value === null &&
+            this.blackCells[idx].row % 2 === 0) {
+            indexes.push(idx + 5);
+        }
+        if (this.blackCells[idx - 4].value === null) {
+            indexes.push(idx - 4);
+        }
+        if (this.blackCells[idx - 5].value === null &&
+            this.blackCells[idx].row % 2 === 1) {
+            indexes.push(idx - 5);
+        }
+        if (this.blackCells[idx - 3].value === null &&
+            this.blackCells[idx].row % 2 === 0) {
+            indexes.push(idx - 3);
+        }
+        if (this.blackCells[idx + 3].value === null &&
+            this.blackCells[idx].row % 2 === 1) {
+            indexes.push(idx + 3);
+        }
+        this.blackCells[idx].openSpaceIndexes = indexes;
+    }
+
+    findJumpSpaces(idx) {
 
     }
 
@@ -170,6 +218,12 @@ class CheckerGame {
 
     }
 }
+
+/*----- functions -----*/
+initialize();
+
+resetButton.addEventListener("click", initialize);
+
 function initialize() {
     initializeBoard();
     game = new CheckerGame(boardEl, msgEl);
@@ -184,7 +238,6 @@ function initializeBoard() {
         if (i % 8 === 0) {
             row = row + 1;
         }
-        let spanEl = document.createElement("span");
         let divEl = document.createElement("div");
         if (i % 2 == 1 && row % 2 === 1) {
             divEl.style.backgroundColor = 'black';
@@ -193,6 +246,7 @@ function initializeBoard() {
             divEl.style.backgroundColor = 'black';
             boardEl.appendChild(divEl);
         } else {
+            const spanEl = document.createElement("span");
             boardEl.appendChild(spanEl);
         }
     }
