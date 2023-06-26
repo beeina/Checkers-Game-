@@ -53,7 +53,19 @@ class Cell {
     render() {
         this.domElement.style.backgroundColor = Cell.renderLookup[this.value];
     }
+
+
+    deselect() {
+        this.selected = 0;
+        this.domElement.classList.remove("selected-border");
+    }
+
+    select() {
+        this.selected = 1;
+        this.domElement.classList.add("selected-border");
+    }
 }
+
 
 class ImageCell extends Cell {
     // additional parameters must always be defined 
@@ -85,63 +97,79 @@ class ImageCell extends Cell {
 class CheckerGame {
     // code to define the properties and methods of this class
     constructor(boardElement, messageElement) {
-      // add properties to the new obj
-      this.boardElement = boardElement;
-      this.messageElement = messageElement;
-      // Will want to use the map method later
-      // create an array instead of NodeList
-      this.squareEls = [...boardElement.querySelectorAll("div")];
-      // Attach a delegated event listener
-      this.boardElement.addEventListener("click", (evt) => {
-        // obtain index of square
-        const idx = this.squareEls.indexOf(evt.target);
-        // Logical guards
-        if (
-          // didn't click <div> in grid
-          idx === -1 ||
-          // square is already taken
-          this.squares[idx].value ||
-          // game over
-          this.winner
-        ) return;
-        // update the square obj
-        this.squares[idx].value = this.turn;
-        // update other state (turn, winner)
-        this.turn *= -1;
-        this.winner = this.getWinner();
-        // render updated state
-        this.render();
-      })
-      // Arrow function is necessary to ensure 'this'
-      // is set to the game object
+        // add properties to the new obj
+        this.boardElement = boardElement;
+        this.messageElement = messageElement;
+        // Will want to use the map method later
+        // create an array instead of NodeList
+        this.blackCellEls = [...boardElement.querySelectorAll("div")];
+        // Attach a delegated event listener
+        this.boardElement.addEventListener("click", (evt) => {
+            // obtain index of square
+            const idx = this.blackCellEls.indexOf(evt.target);
+            // Logical guards
+            if (
+                // didn't click <div> in grid
+                idx === -1) return;
+
+            if (this.blackCells[idx].value !== null && this.turn === this.blackCells[idx].value) {
+                this.deselect();
+                this.blackCells[idx].select();
+            }
+
+            this.render();
+        })
+        // Arrow function is necessary to ensure 'this'
+        // is set to the game object
     }
 
     play() {
-      // initialize the game's state
-      // instance methods have 'this' set to
-      // the actual instance (game obj)
-      this.turn = 1;
-      this.winner = null;
-     // render the game
-      this.render();
-    }
-
-    getWinner() {
-      
+        // initialize the game's state
+        // instance methods have 'this' set to
+        // the actual instance (game obj)
+        this.turn = 1;
+        this.winner = null;
+        // render the game
+        this.render();
     }
 
     render() {
-    
+        // square objs are responsible for rendering themselves
+        this.blackCells.forEach(cell => cell.render());
+        this.messageElement.innerHTML = `Player ${this.turn === 1 ? 1 : 2}'s Turn`
+    }
+
+    getWinner() {
+
+    }
+
+    deselect() {
+        this.blackCells.forEach(cell => cell.deselect());
+    }
+
+    move() {
+    }
+
+    findOpenSpaces() {
+
+    }
+
+    findJumpSpaces() {
+
+    }
+
+    isPlayerKing() {
+
     }
 
     toString() {
-      
+
     }
 
     static about() {
-     
+
     }
-  }
+}
 function initialize() {
     initializeBoard();
     game = new CheckerGame(boardEl, msgEl);

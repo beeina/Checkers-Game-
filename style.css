@@ -2,9 +2,9 @@
 
 * {
     box-sizing: border-box;
-  }
-  
-  body {
+}
+
+body {
     /* viewport units: vh (viewport height), vw, vmin (smallest between vh & vw) */
     height: 100vh;
     margin: 0;
@@ -13,31 +13,31 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-  }
-  
-  header {
+}
+
+header {
     font-size: 4vmin;
     color:
-      darkgrey;
+        darkgrey;
     letter-spacing: 1vmin;
-  }
-  
-  h1 {
+}
+
+h1 {
     color:
-      grey;
+        grey;
     font-size: 3vmin;
     margin-bottom: 5.5vmin;
-  }
-  
-  #board {
+}
+
+#board {
     display: grid;
     grid-template-columns: repeat(8, 10vmin);
     grid-template-rows: repeat(8, 10vmin);
     /* gap: 1vmin; */
     /* margin-top: -4vmin; */
-  }
-  
-  #board>div {
+}
+
+#board>div {
     /* border-radius: 100%; */
     border: 0.1vmin solid #0d0d0d;
     /* margin: 3vmin; */
@@ -46,26 +46,31 @@
     background-color: #0a0a0a;
     background-size: contain;
     /* animation: rotating 0s linear infinite; */
-  }
-  
-  #board>span {
+}
+
+#board>span {
     /* border-radius: 100%; */
     border: 0.1vmin solid grey;
-  }
-  
-  button {
+}
+
+button {
     margin-top: 4vmin;
     padding: 2vmin;
     font-size: 2vmin;
     border-radius: 4vmin;
     border: 0.1vmin solid grey;
     color:
-      grey;
-  }
-  
-  button:hover {
+        grey;
+}
+
+button:hover {
     color:
-      white;
+        white;
     background-color:
-      darkgrey;
-  }
+        darkgrey;
+}
+
+.selected-border {
+    border-color: #2bff00 !important;
+    border-width: 4px !important;
+}
