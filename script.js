@@ -1,3 +1,22 @@
+const diagonalIndexes = [
+    [0, 4],
+    [0, 5, 9, 14, 18, 23, 27],
+    [1, 5, 8, 12],
+    [1, 6, 10, 15, 19],
+    [2, 6, 9, 13, 16, 20],
+    [2, 7, 11],
+    [3, 7, 10, 14, 14, 17, 21, 24, 28],
+    [4, 8, 13, 17, 22, 26, 31],
+    [5, 8, 12],
+    [5, 9, 14, 18, 23, 27],
+    [6, 9, 13, 16, 20],
+    [6, 10, 15, 19],
+    [7, 10, 14, 17, 21, 24, 28],
+    [7, 11],
+    [8, 12],
+    [8, 13, 17, 22, 26, 31]
+]
+
 let checkerBoxCount = 64;
 let game;
 
@@ -41,7 +60,10 @@ class Cell {
             row = 7;
             value = 2;
         }
-
+        let movePositive = row < 3 ? true : false;
+        let moveNegative = row > 4 ? true : false;
+        this.movePositive = value === null ? false : movePositive;
+        this.moveNegative = value === null ? false : moveNegative;
         this.row = row;
         this.value = value;
     }
@@ -168,7 +190,7 @@ class CheckerGame {
             this.blackCells[this.selectedPlayer.index].value = null;
             this.blackCells[idx].value = this.turn;
             this.selectedPlayer = null;
-            this.turn = this.turn === 1 ? 2 : 1;
+            // this.turn = this.turn === 1 ? 2 : 1;
             this.deselect();
         }
 
@@ -177,28 +199,34 @@ class CheckerGame {
 
     findOpenSpaces(idx) {
         let indexes = [];
-        if (this.blackCells[idx + 4].value === null) {
-            indexes.push(idx + 4);
+        if (this.blackCells[idx].movePositive) {
+            if ((idx + 4) < 32 && this.blackCells[idx + 4].value === null) {
+                indexes.push(idx + 4);
+            }
+            if ((idx + 5) < 32 && this.blackCells[idx + 5].value === null &&
+                this.blackCells[idx].row % 2 === 0) {
+                indexes.push(idx + 5);
+            }
+            if ((idx + 3) < 32 && this.blackCells[idx + 3].value === null &&
+                this.blackCells[idx].row % 2 === 1) {
+                indexes.push(idx + 3);
+            }
         }
-        if (this.blackCells[idx + 5].value === null &&
-            this.blackCells[idx].row % 2 === 0) {
-            indexes.push(idx + 5);
+        if (this.blackCells[idx].moveNegative) {
+            if ((idx - 4) >= 0 && this.blackCells[idx - 4].value === null) {
+                indexes.push(idx - 4);
+            }
+            if ((idx - 5) >= 0 && this.blackCells[idx - 5].value === null &&
+                this.blackCells[idx].row % 2 === 1) {
+                indexes.push(idx - 5);
+            }
+            if ((idx - 3) >= 0 && this.blackCells[idx - 3].value === null &&
+                this.blackCells[idx].row % 2 === 0) {
+                indexes.push(idx - 3);
+            }
         }
-        if (this.blackCells[idx - 4].value === null) {
-            indexes.push(idx - 4);
-        }
-        if (this.blackCells[idx - 5].value === null &&
-            this.blackCells[idx].row % 2 === 1) {
-            indexes.push(idx - 5);
-        }
-        if (this.blackCells[idx - 3].value === null &&
-            this.blackCells[idx].row % 2 === 0) {
-            indexes.push(idx - 3);
-        }
-        if (this.blackCells[idx + 3].value === null &&
-            this.blackCells[idx].row % 2 === 1) {
-            indexes.push(idx + 3);
-        }
+
+
         this.blackCells[idx].openSpaceIndexes = indexes;
     }
 
