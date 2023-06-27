@@ -189,8 +189,22 @@ class CheckerGame {
             this.selectedPlayer.openSpaceIndexes.includes(idx)) {
             this.blackCells[this.selectedPlayer.index].value = null;
             this.blackCells[idx].value = this.turn;
+            this.blackCells[idx].movePositive = this.selectedPlayer.movePositive;
+            this.blackCells[idx].moveNegative = this.selectedPlayer.moveNegative;
             this.selectedPlayer = null;
-            // this.turn = this.turn === 1 ? 2 : 1;
+            this.turn = this.turn === 1 ? 2 : 1;
+            this.isPlayerKing(idx);
+            this.deselect();
+        } else if (this.blackCells[idx].value === null &&
+            this.selectedPlayer &&
+            this.selectedPlayer.jumpSpaceIndexes.includes(idx)) {
+            this.blackCells[this.selectedPlayer.index].value = null;
+            this.blackCells[idx].value = this.turn;
+            this.blackCells[idx].movePositive = this.selectedPlayer.movePositive;
+            this.blackCells[idx].moveNegative = this.selectedPlayer.moveNegative;
+            this.selectedPlayer = null;
+            this.turn = this.turn === 1 ? 2 : 1;
+            this.isPlayerKing(idx);
             this.deselect();
         }
 
@@ -231,7 +245,52 @@ class CheckerGame {
     }
 
     findJumpSpaces(idx) {
+        let indexes = [];
+        if (this.blackCells[idx].movePositive) {
+            if ((idx + 7) < 32 && this.blackCells[idx + 7].value === null &&
+                this.blackCells[idx + 4].value !== null &&
+                this.blackCells[idx + 4].value !== this.turn &&
+                this.blackCells[idx + 4].row !== this.blackCells[idx + 7].row) {
+                indexes.push(idx + 7);
+            }
+            if ((idx + 9) < 32 && this.blackCells[idx + 9].value === null &&
+                this.blackCells[idx].row % 2 === 0 &&
+                this.blackCells[idx + 5].value !== null &&
+                this.blackCells[idx + 5].value !== this.turn &&
+                this.blackCells[idx + 5].row !== this.blackCells[idx + 9].row) {
+                indexes.push(idx + 9);
+            }
+            if ((idx + 7) < 32 && this.blackCells[idx + 7].value === null &&
+                this.blackCells[idx].row % 2 === 1 &&
+                this.blackCells[idx + 3].value !== null &&
+                this.blackCells[idx + 3].value !== this.turn &&
+                this.blackCells[idx + 3].row !== this.blackCells[idx + 7].row) {
+                indexes.push(idx + 7);
+            }
+            if ((idx + 9) < 32 && this.blackCells[idx + 9].value === null &&
+                this.blackCells[idx].row % 2 === 1 &&
+                this.blackCells[idx + 4].value !== null &&
+                this.blackCells[idx + 4].value !== this.turn &&
+                this.blackCells[idx + 4].row !== this.blackCells[idx + 9].row) {
+                indexes.push(idx + 9);
+            }
+        }
+        if (this.blackCells[idx].moveNegative) {
+            if ((idx - 4) >= 0 && this.blackCells[idx - 4].value === null) {
+                indexes.push(idx - 4);
+            }
+            if ((idx - 5) >= 0 && this.blackCells[idx - 5].value === null &&
+                this.blackCells[idx].row % 2 === 1) {
+                indexes.push(idx - 5);
+            }
+            if ((idx - 3) >= 0 && this.blackCells[idx - 3].value === null &&
+                this.blackCells[idx].row % 2 === 0) {
+                indexes.push(idx - 3);
+            }
+        }
 
+
+        this.blackCells[idx].jumpSpaceIndexes = indexes;
     }
 
     isPlayerKing() {
