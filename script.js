@@ -164,6 +164,8 @@ class CheckerGame {
   checkWinner() {
     if (this.playerOneCountKilled === 12 || this.playerTwoCountKilled === 12) {
       this.winner = this.turn;
+      const winnerMessage = `Congratulation! ${this.turn === 1 ? "Mario" : "Luigi"}'s Wins`;
+      alert(winnerMessage);
     }
   }
 
@@ -177,9 +179,9 @@ class CheckerGame {
     if (this.winner === "T") {
       messageEl.innerText = "It's a tie!";
     } else if (this.winner) {
-      this.messageElement.innerHTML = `Congratulation! ${this.turn}'s Wins`;
+      this.messageElement.innerHTML = `Congratulation! ${this.turn === 1 ? "Mario" : "Luigi"}'s Wins`;
     } else {
-      this.messageElement.innerHTML = `Player ${this.turn}'s Turn`;
+      this.messageElement.innerHTML = `${this.turn === 1 ? "Mario" : "Luigi"}'s Turn`;
     }
   }
 
@@ -243,7 +245,7 @@ class CheckerGame {
       this.checkWinner();
       this.selectedPlayer = null;
       if (this.winner === null) {
-         this.turn = this.turn === 1 ? 2 : 1;
+        this.turn = this.turn === 1 ? 2 : 1;
       }
     }
 
@@ -256,9 +258,9 @@ class CheckerGame {
       let diagonalIndexes = this.getDiagonalIndexes(idx, 1);
       if (diagonalIndexes.length > 0) {
         for (let i = 0; i < diagonalIndexes.length; i++) {
-           if (diagonalIndexes[i] < 32 && this.blackCells[diagonalIndexes[i]].value === null) {
-              indexes.push(diagonalIndexes[i]);
-            }
+          if (diagonalIndexes[i] < 32 && this.blackCells[diagonalIndexes[i]].value === null) {
+            indexes.push(diagonalIndexes[i]);
+          }
         }
       }
     }
@@ -266,9 +268,9 @@ class CheckerGame {
       let diagonalIndexes = this.getDiagonalIndexes(idx, -1);
       if (diagonalIndexes.length > 0) {
         for (let i = 0; i < diagonalIndexes.length; i++) {
-           if (diagonalIndexes[i] < 32 && this.blackCells[diagonalIndexes[i]].value === null) {
-              indexes.push(diagonalIndexes[i]);
-            }
+          if (diagonalIndexes[i] < 32 && this.blackCells[diagonalIndexes[i]].value === null) {
+            indexes.push(diagonalIndexes[i]);
+          }
         }
       }
     }
@@ -277,21 +279,21 @@ class CheckerGame {
   }
 
   findJumpSpaces(idx) {
-    
+
     let indexes = [];
     let jumpOppIndexes = {};
     if (this.blackCells[idx].movePositive) {
       let jumpIndexes = this.getJumpDiagonalIndexes(idx, 1, 2);
       if (jumpIndexes.length > 0) {
         for (let i = 0; i < jumpIndexes.length; i++) {
-            if (jumpIndexes[i].length === 2 && 
-               jumpIndexes[i][0] < 32 && jumpIndexes[i][1] < 32 && 
-               this.blackCells[jumpIndexes[i][0]].value !== this.turn &&
-               this.blackCells[jumpIndexes[i][1]].value === null) {
-            
-                indexes.push(jumpIndexes[i][1]);
-                jumpOppIndexes[jumpIndexes[i][1]] = jumpIndexes[i][0];
-        } 
+          if (jumpIndexes[i].length === 2 &&
+            jumpIndexes[i][0] < 32 && jumpIndexes[i][1] < 32 &&
+            this.blackCells[jumpIndexes[i][0]].value !== this.turn &&
+            this.blackCells[jumpIndexes[i][1]].value === null) {
+
+            indexes.push(jumpIndexes[i][1]);
+            jumpOppIndexes[jumpIndexes[i][1]] = jumpIndexes[i][0];
+          }
         }
       }
     }
@@ -299,14 +301,14 @@ class CheckerGame {
       let jumpIndexes = this.getJumpDiagonalIndexes(idx, -1, -2);
       if (jumpIndexes.length > 0) {
         for (let i = 0; i < jumpIndexes.length; i++) {
-            if (jumpIndexes[i].length === 2 && 
-               jumpIndexes[i][0] >= 0 && jumpIndexes[i][1] >= 0 && 
-               this.blackCells[jumpIndexes[i][0]].value !== this.turn &&
-               this.blackCells[jumpIndexes[i][1]].value === null) {
-            
-                indexes.push(jumpIndexes[i][1]);
-                jumpOppIndexes[jumpIndexes[i][1]] = jumpIndexes[i][0];
-        } 
+          if (jumpIndexes[i].length === 2 &&
+            jumpIndexes[i][0] >= 0 && jumpIndexes[i][1] >= 0 &&
+            this.blackCells[jumpIndexes[i][0]].value !== this.turn &&
+            this.blackCells[jumpIndexes[i][1]].value === null) {
+
+            indexes.push(jumpIndexes[i][1]);
+            jumpOppIndexes[jumpIndexes[i][1]] = jumpIndexes[i][0];
+          }
         }
       }
     }
@@ -333,11 +335,11 @@ class CheckerGame {
   getDiagonalIndexes(idx, add) {
     let indexes = [];
     for (let i = 0; i < diagonalIndexes.length; i++) {
-      for(let j = 0; j < diagonalIndexes[i].length; j++) {
+      for (let j = 0; j < diagonalIndexes[i].length; j++) {
         if (idx === diagonalIndexes[i][j]) {
           if (diagonalIndexes[i][j + add] >= 0 || diagonalIndexes[i][j + add] < 32) {
-             indexes.push(diagonalIndexes[i][j + add]);
-           j = diagonalIndexes[i].length;
+            indexes.push(diagonalIndexes[i][j + add]);
+            j = diagonalIndexes[i].length;
           }
         }
         if (indexes.length === 2) {
@@ -351,13 +353,13 @@ class CheckerGame {
   getJumpDiagonalIndexes(idx, one, two) {
     let indexes = [];
     for (let i = 0; i < diagonalIndexes.length; i++) {
-      for(let j = 0; j < diagonalIndexes[i].length; j++) {
+      for (let j = 0; j < diagonalIndexes[i].length; j++) {
         if (idx === diagonalIndexes[i][j]) {
-          if (diagonalIndexes[i][j + one] >= 0 || diagonalIndexes[i][j + one] < 32 || 
-             diagonalIndexes[i][j + two] >= 0 || diagonalIndexes[i][j + two] < 32) {
+          if (diagonalIndexes[i][j + one] >= 0 || diagonalIndexes[i][j + one] < 32 ||
+            diagonalIndexes[i][j + two] >= 0 || diagonalIndexes[i][j + two] < 32) {
             let arr = [];
-             arr.push(diagonalIndexes[i][j + one]);
-             arr.push(diagonalIndexes[i][j + two]);
+            arr.push(diagonalIndexes[i][j + one]);
+            arr.push(diagonalIndexes[i][j + two]);
             indexes.push(arr);
           }
         }
@@ -367,10 +369,6 @@ class CheckerGame {
   }
 }
 
-function howToPlay() {
-  msgEl.textContent =
-    "Player1 to play first.Players move diagonally forward. If there is an opponent diagonally in front of your player you can capture with a jump if the following diagonal square is free. If your player gets to the far side of the board it becomes a king and the player can move backwards too.Game is won when one side captures all the opponent’s players or the other side is unable to move.";
-}
 
 /*----- functions -----*/
 initialize();
