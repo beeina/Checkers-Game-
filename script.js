@@ -1,5 +1,5 @@
 const diagonalIndexes = [
-  [0, 5],
+  [0, 4],
   [1, 5, 8, 12],
   [2, 6, 9, 13, 16, 20],
   [3, 7, 10, 14, 17, 21, 24, 28],
@@ -101,8 +101,8 @@ class ImageCell extends Cell {
   static renderLookup = {
     1: "https://i.imgur.com/UlaDUh1.png",
     2: "https://i.imgur.com/1DfePxg.png",
-    "1-king": "https://i.imgur.com/MHLzUdY.png",
-    "2-king": "https://i.imgur.com/7DAwx36.png",
+    "1-king": "https://i.imgur.com/JeOdUvc.png",
+    "2-king": "https://i.imgur.com/uh8hHLa.png",
     null: "black",
   };
 
@@ -110,13 +110,11 @@ class ImageCell extends Cell {
   render() {
     if (this.value) {
       if (this.isKing) {
-        this.domElement.style.backgroundImage = `url(${
-          ImageCell.renderLookup[this.value + "-king"]
-        })`;
+        this.domElement.style.backgroundImage = `url(${ImageCell.renderLookup[this.value + "-king"]
+          })`;
       } else {
-        this.domElement.style.backgroundImage = `url(${
-          ImageCell.renderLookup[this.value]
-        })`;
+        this.domElement.style.backgroundImage = `url(${ImageCell.renderLookup[this.value]
+          })`;
       }
     } else {
       this.domElement.style.backgroundImage = "";
@@ -181,9 +179,7 @@ class CheckerGame {
     } else if (this.winner) {
       this.messageElement.innerHTML = `Congratulation! ${this.turn}'s Wins`;
     } else {
-      this.messageElement.innerHTML = `Player ${
-        this.turn === 1 ? 1 : 2
-      }'s Turn`;
+      this.messageElement.innerHTML = `Player ${this.turn}'s Turn`;
     }
   }
 
@@ -191,7 +187,7 @@ class CheckerGame {
     this.blackCells.forEach((cell) => cell.deselect());
   }
 
-  move() {}
+  move() { }
 
   cellClicked(idx) {
     if (
@@ -226,7 +222,9 @@ class CheckerGame {
     } else if (
       this.blackCells[idx].value === null &&
       this.selectedPlayer &&
-      this.selectedPlayer.jumpSpaceIndexes.includes(idx)
+      this.selectedPlayer.jumpSpaceIndexes.includes(idx) &&
+      this.blackCells[this.selectedPlayer.jumpOppIndexes[idx]].value !== null &&
+      this.blackCells[this.selectedPlayer.jumpOppIndexes[idx]].value !== this.turn
     ) {
       this.isPlayerKing(idx);
       this.blackCells[this.selectedPlayer.index].value = null;
@@ -244,7 +242,9 @@ class CheckerGame {
       this.deselect();
       this.checkWinner();
       this.selectedPlayer = null;
-      this.turn = this.turn === 1 ? 2 : 1;
+      if (this.winner === null) {
+         this.turn = this.turn === 1 ? 2 : 1;
+      }
     }
 
     this.render();
@@ -253,41 +253,23 @@ class CheckerGame {
   findOpenSpaces(idx) {
     let indexes = [];
     if (this.blackCells[idx].movePositive) {
-      if (idx + 4 < 32 && this.blackCells[idx + 4].value === null) {
-        indexes.push(idx + 4);
-      }
-      if (
-        idx + 5 < 32 &&
-        this.blackCells[idx + 5].value === null &&
-        this.blackCells[idx].row % 2 === 0
-      ) {
-        indexes.push(idx + 5);
-      }
-      if (
-        idx + 3 < 32 &&
-        this.blackCells[idx + 3].value === null &&
-        this.blackCells[idx].row % 2 === 1
-      ) {
-        indexes.push(idx + 3);
+      let diagonalIndexes = this.getDiagonalIndexes(idx, 1);
+      if (diagonalIndexes.length > 0) {
+        for (let i = 0; i < diagonalIndexes.length; i++) {
+           if (diagonalIndexes[i] < 32 && this.blackCells[diagonalIndexes[i]].value === null) {
+              indexes.push(diagonalIndexes[i]);
+            }
+        }
       }
     }
     if (this.blackCells[idx].moveNegative) {
-      if (idx - 4 >= 0 && this.blackCells[idx - 4].value === null) {
-        indexes.push(idx - 4);
-      }
-      if (
-        idx - 5 >= 0 &&
-        this.blackCells[idx - 5].value === null &&
-        this.blackCells[idx].row % 2 === 1
-      ) {
-        indexes.push(idx - 5);
-      }
-      if (
-        idx - 3 >= 0 &&
-        this.blackCells[idx - 3].value === null &&
-        this.blackCells[idx].row % 2 === 0
-      ) {
-        indexes.push(idx - 3);
+      let diagonalIndexes = this.getDiagonalIndexes(idx, -1);
+      if (diagonalIndexes.length > 0) {
+        for (let i = 0; i < diagonalIndexes.length; i++) {
+           if (diagonalIndexes[i] < 32 && this.blackCells[diagonalIndexes[i]].value === null) {
+              indexes.push(diagonalIndexes[i]);
+            }
+        }
       }
     }
 
@@ -295,94 +277,37 @@ class CheckerGame {
   }
 
   findJumpSpaces(idx) {
+    
     let indexes = [];
     let jumpOppIndexes = {};
     if (this.blackCells[idx].movePositive) {
-      if (
-        idx + 7 < 32 &&
-        this.blackCells[idx + 7].value === null &&
-        this.blackCells[idx + 4].value !== null &&
-        this.blackCells[idx + 4].value !== this.turn &&
-        this.blackCells[idx + 4].row !== this.blackCells[idx + 7].row
-      ) {
-        indexes.push(idx + 7);
-        jumpOppIndexes[idx + 7] = idx + 4;
-      }
-      if (
-        idx + 9 < 32 &&
-        this.blackCells[idx + 9].value === null &&
-        this.blackCells[idx].row % 2 === 0 &&
-        this.blackCells[idx + 5].value !== null &&
-        this.blackCells[idx + 5].value !== this.turn &&
-        this.blackCells[idx + 5].row !== this.blackCells[idx + 9].row
-      ) {
-        indexes.push(idx + 9);
-        jumpOppIndexes[idx + 9] = idx + 5;
-      }
-      if (
-        idx + 7 < 32 &&
-        this.blackCells[idx + 7].value === null &&
-        this.blackCells[idx].row % 2 === 1 &&
-        this.blackCells[idx + 3].value !== null &&
-        this.blackCells[idx + 3].value !== this.turn &&
-        this.blackCells[idx + 3].row !== this.blackCells[idx + 7].row
-      ) {
-        indexes.push(idx + 7);
-        jumpOppIndexes[idx + 7] = idx + 3;
-      }
-      if (
-        idx + 9 < 32 &&
-        this.blackCells[idx + 9].value === null &&
-        this.blackCells[idx].row % 2 === 1 &&
-        this.blackCells[idx + 4].value !== null &&
-        this.blackCells[idx + 4].value !== this.turn &&
-        this.blackCells[idx + 4].row !== this.blackCells[idx + 9].row
-      ) {
-        indexes.push(idx + 9);
-        jumpOppIndexes[idx + 9] = idx + 4;
+      let jumpIndexes = this.getJumpDiagonalIndexes(idx, 1, 2);
+      if (jumpIndexes.length > 0) {
+        for (let i = 0; i < jumpIndexes.length; i++) {
+            if (jumpIndexes[i].length === 2 && 
+               jumpIndexes[i][0] < 32 && jumpIndexes[i][1] < 32 && 
+               this.blackCells[jumpIndexes[i][0]].value !== this.turn &&
+               this.blackCells[jumpIndexes[i][1]].value === null) {
+            
+                indexes.push(jumpIndexes[i][1]);
+                jumpOppIndexes[jumpIndexes[i][1]] = jumpIndexes[i][0];
+        } 
+        }
       }
     }
     if (this.blackCells[idx].moveNegative) {
-      if (
-        idx - 7 >= 0 &&
-        this.blackCells[idx - 7].value === null &&
-        this.blackCells[idx - 4].value !== null &&
-        this.blackCells[idx - 4].value !== this.turn &&
-        this.blackCells[idx - 4].row !== this.blackCells[idx - 7].row
-      ) {
-        indexes.push(idx - 7);
-        jumpOppIndexes[idx - 7] = idx - 4;
-      }
-      if (
-        idx - 7 >= 0 &&
-        this.blackCells[idx - 7].value === null &&
-        this.blackCells[idx - 3].value !== null &&
-        this.blackCells[idx - 3].value !== this.turn &&
-        this.blackCells[idx - 3].row !== this.blackCells[idx - 7].row
-      ) {
-        indexes.push(idx - 7);
-        jumpOppIndexes[idx - 7] = idx - 3;
-      }
-
-      if (
-        idx - 9 >= 0 &&
-        this.blackCells[idx - 9].value === null &&
-        this.blackCells[idx - 5].value !== null &&
-        this.blackCells[idx - 5].value !== this.turn &&
-        this.blackCells[idx - 5].row !== this.blackCells[idx - 9].row
-      ) {
-        indexes.push(idx - 9);
-        jumpOppIndexes[idx - 9] = idx - 5;
-      }
-      if (
-        idx - 9 >= 0 &&
-        this.blackCells[idx - 9].value === null &&
-        this.blackCells[idx - 4].value !== null &&
-        this.blackCells[idx - 4].value !== this.turn &&
-        this.blackCells[idx - 4].row !== this.blackCells[idx - 9].row
-      ) {
-        indexes.push(idx - 9);
-        jumpOppIndexes[idx - 9] = idx - 4;
+      let jumpIndexes = this.getJumpDiagonalIndexes(idx, -1, -2);
+      if (jumpIndexes.length > 0) {
+        for (let i = 0; i < jumpIndexes.length; i++) {
+            if (jumpIndexes[i].length === 2 && 
+               jumpIndexes[i][0] >= 0 && jumpIndexes[i][1] >= 0 && 
+               this.blackCells[jumpIndexes[i][0]].value !== this.turn &&
+               this.blackCells[jumpIndexes[i][1]].value === null) {
+            
+                indexes.push(jumpIndexes[i][1]);
+                jumpOppIndexes[jumpIndexes[i][1]] = jumpIndexes[i][0];
+        } 
+        }
       }
     }
 
@@ -401,9 +326,45 @@ class CheckerGame {
     }
   }
 
-  toString() {}
+  toString() { }
 
-  static about() {}
+  static about() { }
+
+  getDiagonalIndexes(idx, add) {
+    let indexes = [];
+    for (let i = 0; i < diagonalIndexes.length; i++) {
+      for(let j = 0; j < diagonalIndexes[i].length; j++) {
+        if (idx === diagonalIndexes[i][j]) {
+          if (diagonalIndexes[i][j + add] >= 0 || diagonalIndexes[i][j + add] < 32) {
+             indexes.push(diagonalIndexes[i][j + add]);
+           j = diagonalIndexes[i].length;
+          }
+        }
+        if (indexes.length === 2) {
+          return indexes;
+        }
+      }
+    }
+    return indexes;
+  }
+
+  getJumpDiagonalIndexes(idx, one, two) {
+    let indexes = [];
+    for (let i = 0; i < diagonalIndexes.length; i++) {
+      for(let j = 0; j < diagonalIndexes[i].length; j++) {
+        if (idx === diagonalIndexes[i][j]) {
+          if (diagonalIndexes[i][j + one] >= 0 || diagonalIndexes[i][j + one] < 32 || 
+             diagonalIndexes[i][j + two] >= 0 || diagonalIndexes[i][j + two] < 32) {
+            let arr = [];
+             arr.push(diagonalIndexes[i][j + one]);
+             arr.push(diagonalIndexes[i][j + two]);
+            indexes.push(arr);
+          }
+        }
+      }
+    }
+    return indexes;
+  }
 }
 
 function howToPlay() {
