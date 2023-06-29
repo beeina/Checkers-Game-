@@ -11,13 +11,13 @@ Checkers is known as a more accessible alternative to chess. It is a traditional
 
 Screenshots:
 
-<img src="[![Alt text](<Computer size.png>)]"/>
+<img src="Computer size.png"/>
 
 
-<img src="[![Alt text](<Mobile size.png>)]"/>
+<img src="Mobile size.png"/>
 
 
-<img src="[![Alt text](<Winner Luigi.png>)]"/>
+<img src="Winner Luigi.png"/>
 
 
 

@@ -167,6 +167,30 @@ class CheckerGame {
       const winnerMessage = `Congratulation! ${this.turn === 1 ? "Mario" : "Luigi"}'s Wins`;
       alert(winnerMessage);
     }
+    if (this.selectedPlayer.openSpaceIndexes.length === 0 &&
+      this.selectedPlayer.jumpSpaceIndexes.length === 0) {
+      let findSamePlayerMovesLeft = this.checkSamePlayerMoves();
+      if (!findSamePlayerMovesLeft) {
+        this.winner = this.turn !== 1 ? 1 : 2;
+        const winnerMessage = `Congratulation! ${this.winner === 1 ? "Mario" : "Luigi"}'s Wins`;
+        this.deselect();
+        alert(winnerMessage);
+      }
+    }
+  }
+
+  checkSamePlayerMoves() {
+    for (let i = 0; i < this.blackCells.length; i++) {
+      if (this.turn === this.blackCells[i].value) {
+        this.findOpenSpaces(i);
+        this.findJumpSpaces(i);
+        if (this.blackCells[i].openSpaceIndexes.length > 0 ||
+          this.blackCells[i].jumpSpaceIndexes.length > 0) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   render() {
@@ -207,6 +231,7 @@ class CheckerGame {
       this.findOpenSpaces(idx);
       this.findJumpSpaces(idx);
       this.selectedPlayer = this.blackCells[idx];
+      this.checkWinner();
     } else if (
       this.blackCells[idx].value === null &&
       this.selectedPlayer &&
