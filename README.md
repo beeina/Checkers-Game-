@@ -32,6 +32,8 @@ Checkers is known as a more accessible alternative to chess. It is a traditional
 - If player1(Mario) gets to the far side of the board (opponent’s side) he becomes a king and the player1(Mario) can move backwards too.
 - Game is won when one side captures all the opponent’s players or the other side is unable to move.
 
+- [To play game]( https://beeina.github.io/Checkers-Game-/)
+
 
 ## Next Steps: 
 
