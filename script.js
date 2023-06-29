@@ -26,7 +26,7 @@ class Cell {
     this.domElement = domElement;
     this.index = idx;
     this.isKing = false;
-    this.selected = 0;
+    // this.selected = 0;
     this.openSpaceIndexes = null;
     this.jumpSpaceIndexes = null;
     this.setRow(idx);
@@ -77,12 +77,12 @@ class Cell {
   }
 
   deselect() {
-    this.selected = 0;
+    // this.selected = 0;
     this.domElement.classList.remove("selected-border");
   }
 
   select() {
-    this.selected = 1;
+    // this.selected = 1;
     this.domElement.classList.add("selected-border");
   }
 }
@@ -193,6 +193,7 @@ class CheckerGame {
     return false;
   }
 
+
   render() {
     // square objs are responsible for rendering themselves
     this.blackCells.forEach((cell) => cell.render());
@@ -200,10 +201,8 @@ class CheckerGame {
   }
 
   renderMessage() {
-    if (this.winner === "T") {
-      messageEl.innerText = "It's a tie!";
-    } else if (this.winner) {
-      this.messageElement.innerHTML = `Congratulation! ${this.turn === 1 ? "Mario" : "Luigi"}'s Wins`;
+    if (this.winner) {
+      this.messageElement.innerHTML = `Congratulation! ${this.winner === 1 ? "Mario" : "Luigi"}'s Wins`;
     } else {
       this.messageElement.innerHTML = `${this.turn === 1 ? "Mario" : "Luigi"}'s Turn`;
     }
@@ -217,8 +216,7 @@ class CheckerGame {
 
   cellClicked(idx) {
     if (
-      // didn't click <div> in grid
-      idx === -1
+      idx === -1 || this.winner !== null
     )
       return;
 
