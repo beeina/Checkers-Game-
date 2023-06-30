@@ -1,3 +1,4 @@
+//black cells diagonal indexes. we only need to track black cells, so black cells are div elements starting first index from 0. 
 const diagonalIndexes = [
   [0, 4],
   [1, 5, 8, 12],
@@ -14,25 +15,26 @@ const diagonalIndexes = [
   [20, 24, 29],
 ];
 
-let checkerBoxCount = 64;
+let checkerCellCount = 64;
 let game;
 
 let boardEl = document.getElementById("board");
 const msgEl = document.getElementById("message");
 const resetButton = document.querySelector("button");
 
+//cell class with some properties
 class Cell {
   constructor(domElement, idx) {
     this.domElement = domElement;
-    this.index = idx;
+    this.index = idx;  // black index
     this.isKing = false;
-    // this.selected = 0;
     this.openSpaceIndexes = null;
     this.jumpSpaceIndexes = null;
     this.setRow(idx);
     this.deselect();
   }
 
+  //set the cell row and other properties based on row
   setRow(idx) {
     let row;
     let value = 1;
@@ -58,6 +60,7 @@ class Cell {
       row = 7;
       value = 2;
     }
+    //starting of the game, player1 can move to higher indexes in diagonally, and player2 can move to lower indexes diaogonally
     let movePositive = row < 3 ? true : false;
     let moveNegative = row > 4 ? true : false;
     this.movePositive = value === null ? false : movePositive;
@@ -76,13 +79,13 @@ class Cell {
     this.domElement.style.backgroundColor = Cell.renderLookup[this.value];
   }
 
+  //deselect the cell - remove the class from div element
   deselect() {
-    // this.selected = 0;
     this.domElement.classList.remove("selected-border");
   }
 
+  //select the cell - add the class from div element
   select() {
-    // this.selected = 1;
     this.domElement.classList.add("selected-border");
   }
 }
@@ -94,8 +97,6 @@ class ImageCell extends Cell {
   constructor(domElement, value) {
     // always initialize the superclass first
     super(domElement, value);
-    // set this subclass properties here:
-    // this.domElement.style.animationDuration = `${secondsPerRotation}s`
   }
 
   static renderLookup = {
@@ -138,9 +139,8 @@ class CheckerGame {
     this.blackCellEls = [...boardElement.querySelectorAll("div")];
     // Attach a delegated event listener
     this.boardElement.addEventListener("click", (evt) => {
-      // obtain index of square
+      // obtain index of cell
       const idx = this.blackCellEls.indexOf(evt.target);
-      // Logical guards
       this.cellClicked(idx);
     });
     // Arrow function is necessary to ensure 'this'
@@ -153,7 +153,7 @@ class CheckerGame {
     // the actual instance (game obj)
     this.turn = 1;
     this.winner = null;
-    // we'll come back to this later
+    // initialize each black cell with cell class properties
     this.blackCells = this.blackCellEls.map(
       (el, idx) => new ImageCell(el, idx)
     );
@@ -161,65 +161,14 @@ class CheckerGame {
     this.render();
   }
 
-  checkWinner() {
-    if (this.playerOneCountKilled === 12 || this.playerTwoCountKilled === 12) {
-      this.winner = this.turn;
-      const winnerMessage = `Congratulation! ${this.turn === 1 ? "Mario" : "Luigi"}'s Wins`;
-      alert(winnerMessage);
-    }
-    if (this.selectedPlayer.openSpaceIndexes.length === 0 &&
-      this.selectedPlayer.jumpSpaceIndexes.length === 0) {
-      let findSamePlayerMovesLeft = this.checkSamePlayerMoves();
-      if (!findSamePlayerMovesLeft) {
-        this.winner = this.turn !== 1 ? 1 : 2;
-        const winnerMessage = `Congratulation! ${this.winner === 1 ? "Mario" : "Luigi"}'s Wins`;
-        this.deselect();
-        alert(winnerMessage);
-      }
-    }
-  }
-
-  checkSamePlayerMoves() {
-    for (let i = 0; i < this.blackCells.length; i++) {
-      if (this.turn === this.blackCells[i].value) {
-        this.findOpenSpaces(i);
-        this.findJumpSpaces(i);
-        if (this.blackCells[i].openSpaceIndexes.length > 0 ||
-          this.blackCells[i].jumpSpaceIndexes.length > 0) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-
-  render() {
-    // square objs are responsible for rendering themselves
-    this.blackCells.forEach((cell) => cell.render());
-    this.renderMessage();
-  }
-
-  renderMessage() {
-    if (this.winner) {
-      this.messageElement.innerHTML = `Congratulation! ${this.winner === 1 ? "Mario" : "Luigi"}'s Wins`;
-    } else {
-      this.messageElement.innerHTML = `${this.turn === 1 ? "Mario" : "Luigi"}'s Turn`;
-    }
-  }
-
-  deselect() {
-    this.blackCells.forEach((cell) => cell.deselect());
-  }
-
-  move() { }
-
   cellClicked(idx) {
+    //if white cell is clicked, return immediately or there is a winner
     if (
       idx === -1 || this.winner !== null
     )
       return;
 
+    //selected black has player and it is the player's turn
     if (
       this.blackCells[idx].value !== null &&
       this.turn === this.blackCells[idx].value
@@ -230,21 +179,21 @@ class CheckerGame {
       this.findJumpSpaces(idx);
       this.selectedPlayer = this.blackCells[idx];
       this.checkWinner();
-    } else if (
+    } else if (   //selected black cell is empty, and the previously selected player has open spaces that contains this index
       this.blackCells[idx].value === null &&
       this.selectedPlayer &&
       this.selectedPlayer.openSpaceIndexes.includes(idx)
     ) {
-      this.isPlayerKing(idx);
-      this.blackCells[this.selectedPlayer.index].value = null;
-      this.blackCells[idx].value = this.turn;
+      this.isPlayerKing(idx);   // check if this player is king
+      this.blackCells[this.selectedPlayer.index].value = null;  //making previously selected cell empty
+      this.blackCells[idx].value = this.turn; // assign value to current cell
       this.blackCells[idx].movePositive = this.selectedPlayer.movePositive;
       this.blackCells[idx].moveNegative = this.selectedPlayer.moveNegative;
       this.blackCells[idx].isKing = this.selectedPlayer.isKing;
-      this.turn = this.turn === 1 ? 2 : 1;
+      this.turn = this.turn === 1 ? 2 : 1;  //turn switch
       this.deselect();
       this.selectedPlayer = null;
-    } else if (
+    } else if (  //selected black cell is empty, and the previously selected player has jump open spaces that contains this index. It will kill opponent player
       this.blackCells[idx].value === null &&
       this.selectedPlayer &&
       this.selectedPlayer.jumpSpaceIndexes.includes(idx) &&
@@ -275,10 +224,11 @@ class CheckerGame {
     this.render();
   }
 
+  //find open spaces 
   findOpenSpaces(idx) {
     let indexes = [];
     if (this.blackCells[idx].movePositive) {
-      let diagonalIndexes = this.getDiagonalIndexes(idx, 1);
+      let diagonalIndexes = this.getNeighboringIndexes(idx, 1);
       if (diagonalIndexes.length > 0) {
         for (let i = 0; i < diagonalIndexes.length; i++) {
           if (diagonalIndexes[i] < 32 && this.blackCells[diagonalIndexes[i]].value === null) {
@@ -288,7 +238,7 @@ class CheckerGame {
       }
     }
     if (this.blackCells[idx].moveNegative) {
-      let diagonalIndexes = this.getDiagonalIndexes(idx, -1);
+      let diagonalIndexes = this.getNeighboringIndexes(idx, -1);
       if (diagonalIndexes.length > 0) {
         for (let i = 0; i < diagonalIndexes.length; i++) {
           if (diagonalIndexes[i] < 32 && this.blackCells[diagonalIndexes[i]].value === null) {
@@ -351,11 +301,7 @@ class CheckerGame {
     }
   }
 
-  toString() { }
-
-  static about() { }
-
-  getDiagonalIndexes(idx, add) {
+  getNeighboringIndexes(idx, add) {
     let indexes = [];
     for (let i = 0; i < diagonalIndexes.length; i++) {
       for (let j = 0; j < diagonalIndexes[i].length; j++) {
@@ -390,6 +336,61 @@ class CheckerGame {
     }
     return indexes;
   }
+
+  checkWinner() {
+    //if 12 members of the same player are killed, opponent is winner.
+    if (this.playerOneCountKilled === 12 || this.playerTwoCountKilled === 12) {
+      this.winner = this.turn;
+      const winnerMessage = `Congratulation! ${this.turn === 1 ? "Mario" : "Luigi"}'s Wins`;
+      alert(winnerMessage);
+    }
+    //if there is no open spaces to move, opponent is winner
+    if (this.selectedPlayer.openSpaceIndexes.length === 0 &&
+      this.selectedPlayer.jumpSpaceIndexes.length === 0) {
+      let findSamePlayerMovesLeft = this.checkSamePlayerMoves();
+      if (!findSamePlayerMovesLeft) {
+        this.winner = this.turn !== 1 ? 1 : 2;
+        const winnerMessage = `Congratulation! ${this.winner === 1 ? "Mario" : "Luigi"}'s Wins`;
+        this.deselect();
+        alert(winnerMessage);
+      }
+    }
+  }
+
+  // return true if there is an open or jump spaces for other member of selected player, else return false
+  checkSamePlayerMoves() {
+    for (let i = 0; i < this.blackCells.length; i++) {
+      if (this.turn === this.blackCells[i].value) {
+        this.findOpenSpaces(i);
+        this.findJumpSpaces(i);
+        if (this.blackCells[i].openSpaceIndexes.length > 0 ||
+          this.blackCells[i].jumpSpaceIndexes.length > 0) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  render() {
+    // square objs are responsible for rendering themselves
+    this.blackCells.forEach((cell) => cell.render());
+    this.renderMessage();
+  }
+
+  // render message in html for turn and winner if there is one.
+  renderMessage() {
+    if (this.winner) {
+      this.messageElement.innerHTML = `Congratulation! ${this.winner === 1 ? "Mario" : "Luigi"}'s Wins`;
+    } else {
+      this.messageElement.innerHTML = `${this.turn === 1 ? "Mario" : "Luigi"}'s Turn`;
+    }
+  }
+
+  //deselect the all cells
+  deselect() {
+    this.blackCells.forEach((cell) => cell.deselect());
+  }
 }
 
 
@@ -408,7 +409,7 @@ function initialize() {
 function initializeBoard() {
   let row = 0;
 
-  for (let i = 0; i < checkerBoxCount; i++) {
+  for (let i = 0; i < checkerCellCount; i++) {
     if (i % 8 === 0) {
       row = row + 1;
     }
