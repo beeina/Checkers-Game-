@@ -23,6 +23,8 @@ Checkers is known as a more accessible alternative to chess. It is a traditional
 - CSS
 - JavaScript
 - [Imgur](https://imgur.com/)
+- [JavaScript For Loop](https://www.w3schools.com/js/js_loop_for.asp)
+
 
 ## Getting Started: How to Play
 
